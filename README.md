@@ -1,6 +1,6 @@
 # Street View Mining Tool
 
-###$ Warning: Limited usage only due to api registered for *ishtiak.zaman@gmail.com*, which includes a free plan with limited number of access to google map and google street view.
+##### \*Warning: Limited usage only due to api registered for *ishtiak.zaman@gmail.com*, which includes a free plan with limited number of access to google map and google street view.
 
 ## geo_generator.html
 Run the **geo_generator.html** to generate geo locations directly from google map. Features included:
@@ -14,7 +14,7 @@ Run the **geo_generator.html** to generate geo locations directly from google ma
 * **Load File:** Load a saved geocodes .csv file.
  
 
-## svtool
+## svtool binary
 Run **./svtool -f filename** to get street view images of the geocodes read from the file. Options included:<br/>
 Usage: ./svtool<br/>
 -f filename<br/>
