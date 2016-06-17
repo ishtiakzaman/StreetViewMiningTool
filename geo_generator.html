@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Geolocatioin Generator</title>
+        <meta name="viewport" content="initial-scale=1.0">
+        <meta charset="utf-8">
+        <style>
+            html, body {
+                height: 100%;
+                margin: 10px;
+                padding: 0px;
+            }
+            #map {
+                height: 90%;
+                width: 75%;                
+                margin-right: 5px;
+                float: left;
+            }
+            #result {
+                width: 23%;
+                height: 70%;
+                
+            }
+        </style>
+    </head>
+    <body>
+        
+        <div id="map"></div>
+        <form>
+            <input type="radio" name="selection" value="point" checked> Point selection<br>
+            <input type="radio" name="selection" value="line"> Line Selection<br>
+            <input type="radio" name="selection" value="delete"> Delete<br><br>
+            <input type="button" onclick="generate()" value="Generate"><br>
+        </form>       
+        <br />
+        <textarea id="result"></textarea>
+        <script>            
+            var map;
+            var circle_list = [];
+            var last_point_for_line = null;
+            function generate()
+            {                
+                var result = "#Latitude,Longitude\n";
+                for (i = 0; i < circle_list.length; ++i)
+                {
+                    result += circle_list[i].center.lat() + "," + circle_list[i].center.lng() + "\n";
+                }
+                document.getElementById("result").innerHTML = result;
+            }
+            function getRadioSelection()
+            {
+                var radios = document.getElementsByName('selection');
+                for (i=0; i < radios.length; ++i)
+                    if (radios[i].checked == true)
+                        return radios[i].value;
+            }
+            function circleListener()
+            {
+                var radio_selection;                    
+                radio_selection = getRadioSelection();
+                if (radio_selection == "delete")                
+                    this.setMap(null);     
+                circle_list.splice(this.index, 1);
+            }
+            function initMap()
+            {
+                var map = new google.maps.Map(document.getElementById('map'),
+                {          
+                    center: {lat: 39.1698, lng: -86.5235},
+                    zoom: 16
+                });
+                map.addListener('click', function(e) {
+                    
+                    var radio_selection = getRadioSelection(); 
+                    if (radio_selection != "delete") 
+                    {  
+                        var circle = new google.maps.Circle({
+                            strokeColor: '#FF0000',
+                            strokeOpacity: 1.0,
+                            strokeWeight: 2,
+                            fillColor: '#FF0000',
+                            fillOpacity: 1.0,
+                            map: map,
+                            center: e.latLng,
+                            radius: 7,
+                            draggable: true,
+                            index: circle_list.length
+                        });
+                        circle_list.push(circle);
+                        circle.addListener('click', circleListener);
+                    }
+                    
+                    if (radio_selection == "line")
+                    {                        
+                        if (last_point_for_line == null)
+                            last_point_for_line = circle;
+                        else
+                        {
+                            var start_lat = last_point_for_line.center.lat();
+                            var start_lng = last_point_for_line.center.lng();
+                            var end_lat = e.latLng.lat();
+                            var end_lng = e.latLng.lng();
+                            var temp, lat, lng, dist, n_steps, lat_dir, lng_dir;                            
+                            dist = Math.sqrt((start_lat-end_lat)*(start_lat-end_lat)+(start_lng-end_lng)*(start_lng-end_lng));
+                            n_steps = dist / 0.0014542670880578;                                            
+                            lat = start_lat + (end_lat-start_lat)/n_steps;
+                            lng = start_lng + (end_lng-start_lng)/n_steps;
+                            for (i = 1; i < n_steps;
+                                ++i, lat+=(end_lat-start_lat)/n_steps, lng+=(end_lng-start_lng)/n_steps)
+                            {
+                                var circle = new google.maps.Circle({
+                                    strokeColor: '#FF0000',
+                                    strokeOpacity: 1.0,
+                                    strokeWeight: 2,
+                                    fillColor: '#FF0000',
+                                    fillOpacity: 1.0,
+                                    map: map,
+                                    center: {lat: lat, lng: lng},
+                                    radius: 7,
+                                    draggable: true,
+                                    index: circle_list.length
+                                });
+                                circle_list.push(circle);
+                                circle.addListener('click', circleListener);
+                            }
+                            last_point_for_line = null;
+                        }
+                    }
+                    else if (radio_selection == "point")
+                    {
+                        last_point_for_line = null;
+                    }
+                    else if (radio_selection == "delete")
+                    {
+                        last_point_for_line = null;
+                    }
+                    else
+                    {
+                        alert("Unknown selection: " + radio_selection);
+                    }
+                        
+                    
+                    
+                });
+            }
+        </script>
+        <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBFWn5SgaLZXJPn8M4jeDLvYk7tRB_4SLU&callback=initMap"
+        async defer></script>
+    </body>
+</html>

@@ -24,6 +24,20 @@ string getCurrentDateTime()
     return return_time;
 }
 
+void show_usage(string program_name)
+{
+    cout << "Usage: " << program_name << endl <<
+        "-f filename" << endl <<
+        "[-i latitude column in file (default 0)]" << endl <<
+        "[-j longitude column in file (default 1)]" << endl <<
+        "[-t delimiter between columns in file (default ',')]"  << endl <<
+        "[-w width (default 640, maximum allowed limit 640)]"  << endl <<
+        "[-h height (default 640, maximum allowed limit 640)]"  << endl <<
+        "[-d direction1,direction2,...,directionn (default 0,90,180,270; 0 is NORTH, 90 is EAST etc.)]" << endl <<
+        "[-a angle of view (default 90)]"  << endl <<
+        "[-p pitch (default 0)]" << endl;
+}
+
 int main(int argc, char *argv[])
 {
     
@@ -38,9 +52,9 @@ int main(int argc, char *argv[])
     string file_name, directions = "0,90,180,270";
     char delimiter = ',';
     double pitch = 0;
-    int angle = 90, lat_col = 0, lon_col = 1, width = 640, height = 640;
+    int angle = 90, lat_col = 0, lng_col = 1, width = 640, height = 640;
     istringstream iss;
-    while ((opt = getopt(argc, argv, "f:d:a:p:i:j:w:h:t:")) != -1)
+    while ((opt = getopt(argc, argv, "f:d:a:p:i:j:w:h:t:h")) != -1)
     {
         switch (opt)
         {
@@ -76,26 +90,14 @@ int main(int argc, char *argv[])
             break;
         case 'j':
             iss.str(optarg);
-            iss >> lon_col;
-            break;
+            iss >> lng_col;
+            break;        
         default: /* '?' */
-            cout << "Usage: " << argv[0] << endl <<
-                "-f filename" << endl <<
-                "[-i latitude column in file (default 0)]" << endl <<
-                "[-j longitude column in file (default 1)]" << endl <<
-                "[-t delimiter between columns in file (default ',')]"  << endl <<
-                "[-w width (default 640, maximum allowed limit 640)]"  << endl <<
-                "[-h height (default 640, maximum allowed limit 640)]"  << endl <<
-                "[-d direction1,direction2,...,directionn (default 0,90,180,270; 0 is NORTH, 90 is EAST etc.)]" << endl <<
-                "[-a angle of view (default 90)]"  << endl <<
-                "[-p pitch (default 0)]" << endl;                    
+            show_usage(argv[0]);
             exit(EXIT_FAILURE);
         }
         iss.clear();
-    }
-    
-
-    //cout << file_name << ":" << directions << ":" << angle << ":" << pitch << ":" << lat_col << ":" << long_col << endl;
+    }    
 
     string token;
     vector<int> heading_list;
@@ -117,12 +119,15 @@ int main(int argc, char *argv[])
     if (fs.is_open() == false)
     {
         cout << "Failed to read file " << file_name << endl;
+        show_usage(argv[0]);
         exit(EXIT_FAILURE); 
     }
     string line;
     int file_counter = 1;
     while (getline(fs, line))
     {
+        if (line.size() == 0)
+            continue;
         iss.str(line);
         vector<string> line_tokens;
         while (getline(iss, token, delimiter))
@@ -137,7 +142,7 @@ int main(int argc, char *argv[])
         iss.str(line_tokens[lat_col]);
         iss >> latitude;
         iss.clear();
-        iss.str(line_tokens[lon_col]);
+        iss.str(line_tokens[lng_col]);
         iss >> longitude;
         iss.clear();
         for (int i = 0; i < heading_list.size(); ++i)
@@ -151,7 +156,7 @@ int main(int argc, char *argv[])
             oss << "key=" << api_key;
             string image_link = oss.str();
 
-            cout << "Getting street view of lat " << latitude << ", lon " << longitude << ", heading " << heading_list[i] << endl;
+            cout << "Getting street view of lat " << latitude << ", lng " << longitude << ", heading " << heading_list[i] << endl;
             
             CImg<double> image(image_link.c_str());
             oss.str("");

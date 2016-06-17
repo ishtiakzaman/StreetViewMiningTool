@@ -1,7 +1,7 @@
-#, line starts with #, (i.e, # followed by delimiter would be ignored)
-#, latitude column(by default 0), longitude column(by default 1) and
-#, delimiter(by default ,) can be specified in the parameter
-#,FID,Id,Lat,Lon
+# line starts with # would be ignored
+# latitude column(by default 0), longitude column(by default 1) and
+# delimiter(by default ,) can be specified in the parameter
+#FID,Id,Lat,Lng
 0,1,39.16373,-86.63249
 1,2,39.16346,-86.63136
 2,3,39.16326,-86.63021
