@@ -18,7 +18,8 @@
             }
             #result {
                 width: 23%;
-                height: 70%;
+                height: 60%;
+                float: left;
                 
             }
         </style>
@@ -29,11 +30,15 @@
         <form>
             <input type="radio" name="selection" value="point" checked> Point selection<br>
             <input type="radio" name="selection" value="line"> Line Selection<br>
-            <input type="radio" name="selection" value="delete"> Delete<br><br>
-            <input type="button" onclick="generate()" value="Generate"><br>
-        </form>       
-        <br />
-        <textarea id="result"></textarea>
+            <input type="radio" name="selection" value="delete"> Delete<br>
+            <input type="button" onclick="resetCircles()" value="Reset All"><br><br>
+            All placed red locations can be dragged.<br><br>
+            Load File <input type="file" id="loadFile" onchange="loadTextFile()"><br>            
+            <input type="button" onclick="generate()" value="Generate Geocodes">            
+            <input type="button" onclick="saveTextFile()" value="Save as File"><br>
+        </form>     
+        <br>  
+        <textarea id="result">The selected geocodes will appear here.</textarea>        
         <script>            
             var map;
             var circle_list = [];
@@ -58,13 +63,80 @@
             {
                 var radio_selection;                    
                 radio_selection = getRadioSelection();
-                if (radio_selection == "delete")                
+                if (radio_selection == "delete")     
+                {           
                     this.setMap(null);     
-                circle_list.splice(this.index, 1);
+                    for (i = this.index+1; i < circle_list.length; ++i)
+                        circle_list[i].index--;
+                    circle_list.splice(this.index, 1);                    
+                }
+            }
+            function saveTextFile()
+            {
+                generate();
+
+                var textSave = document.getElementById("result").value;
+                var textBlob = new Blob([textSave], {type:"text/plain"});
+                var textURL = window.URL.createObjectURL(textBlob);                
+
+                var downloadLink = document.createElement("a");
+                downloadLink.download = "geolocations.csv";
+                downloadLink.innerHTML = "Download File";
+                downloadLink.href = textURL;
+                downloadLink.onclick = destroyElement;
+                downloadLink.style.display = "none";
+                document.body.appendChild(downloadLink);
+
+                downloadLink.click();
+            }
+            function resetCircles()
+            {                
+                for (i = 0; i < circle_list.length; ++i)                
+                    circle_list[i].setMap(null);
+                circle_list = [];                
+            }
+            function destroyElement(event)
+            {
+                document.body.removeChild(event.target);
+            }
+            function loadTextFile()
+            {                
+                var loadFile = document.getElementById("loadFile").files[0];
+                var fileReader = new FileReader();
+                fileReader.onload = function(fileEvent) 
+                {                             
+                    resetCircles();           
+                    var loadString = fileEvent.target.result;
+                    document.getElementById("result").innerHTML = loadString;
+                    var lines = loadString.split("\n");                    
+                    for (i = 0; i < lines.length; ++i)
+                    {
+                        var words = lines[i].split(",");
+                        if (words.length != 2 || words[0][0] == '#')
+                            continue;
+                        var lat = Number(words[0]);
+                        var lng = Number(words[1]);
+                        var circle = new google.maps.Circle({
+                            strokeColor: '#FF0000',
+                            strokeOpacity: 1.0,
+                            strokeWeight: 2,
+                            fillColor: '#FF0000',
+                            fillOpacity: 1.0,
+                            map: map,                            
+                            center: {lat: lat, lng: lng},
+                            radius: 7,
+                            draggable: true,
+                            index: circle_list.length
+                        });                       
+                        circle_list.push(circle);
+                        circle.addListener('click', circleListener);
+                    }
+                };
+                fileReader.readAsText(loadFile, "UTF-8");
             }
             function initMap()
             {
-                var map = new google.maps.Map(document.getElementById('map'),
+                map = new google.maps.Map(document.getElementById('map'),
                 {          
                     center: {lat: 39.1698, lng: -86.5235},
                     zoom: 16
@@ -138,9 +210,6 @@
                     {
                         alert("Unknown selection: " + radio_selection);
                     }
-                        
-                    
-                    
                 });
             }
         </script>

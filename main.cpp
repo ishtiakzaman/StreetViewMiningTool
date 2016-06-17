@@ -31,8 +31,8 @@ void show_usage(string program_name)
         "[-i latitude column in file (default 0)]" << endl <<
         "[-j longitude column in file (default 1)]" << endl <<
         "[-t delimiter between columns in file (default ',')]"  << endl <<
-        "[-w width (default 640, maximum allowed limit 640)]"  << endl <<
-        "[-h height (default 640, maximum allowed limit 640)]"  << endl <<
+        "[-w width (default 640, maximum allowed limit is 640)]"  << endl <<
+        "[-h height (default 640, maximum allowed limit is 640)]"  << endl <<
         "[-d direction1,direction2,...,directionn (default 0,90,180,270; 0 is NORTH, 90 is EAST etc.)]" << endl <<
         "[-a angle of view (default 90)]"  << endl <<
         "[-p pitch (default 0)]" << endl;
@@ -110,10 +110,6 @@ int main(int argc, char *argv[])
         heading_list.push_back(dir);
     }
     iss.clear();
-    
-    string directory_name = "street_view_images_" + getCurrentDateTime();
-    string cmd = "mkdir " + directory_name;
-    system(cmd.c_str());
 
     ifstream fs(file_name.c_str());
     if (fs.is_open() == false)
@@ -122,6 +118,11 @@ int main(int argc, char *argv[])
         show_usage(argv[0]);
         exit(EXIT_FAILURE); 
     }
+
+    string directory_name = "street_view_images_" + getCurrentDateTime();
+    string cmd = "mkdir " + directory_name;
+    system(cmd.c_str());
+
     string line;
     int file_counter = 1;
     while (getline(fs, line))
