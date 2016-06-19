@@ -91,6 +91,7 @@
             }
             function resetCircles()
             {                
+                document.getElementById("result").innerHTML = "";
                 for (i = 0; i < circle_list.length; ++i)                
                     circle_list[i].setMap(null);
                 circle_list = [];                
@@ -102,13 +103,14 @@
             function loadTextFile()
             {                
                 var loadFile = document.getElementById("loadFile").files[0];
-                var fileReader = new FileReader();
+                var fileReader = new FileReader();                
                 fileReader.onload = function(fileEvent) 
                 {                             
                     resetCircles();           
                     var loadString = fileEvent.target.result;
                     document.getElementById("result").innerHTML = loadString;
-                    var lines = loadString.split("\n");                    
+                    var lines = loadString.split("\n");  
+                    var first_lat = -1, first_lng = -1;                  
                     for (i = 0; i < lines.length; ++i)
                     {
                         var words = lines[i].split(",");
@@ -116,6 +118,11 @@
                             continue;
                         var lat = Number(words[0]);
                         var lng = Number(words[1]);
+                        if (first_lat == -1 && first_lng == -1)
+                        {
+                            first_lat = lat;
+                            first_lng = lng;
+                        }
                         var circle = new google.maps.Circle({
                             strokeColor: '#FF0000',
                             strokeOpacity: 1.0,
@@ -131,8 +138,9 @@
                         circle_list.push(circle);
                         circle.addListener('click', circleListener);
                     }
+                    map.setCenter({lat: first_lat, lng: first_lng});
                 };
-                fileReader.readAsText(loadFile, "UTF-8");
+                fileReader.readAsText(loadFile, "UTF-8");               
             }
             function initMap()
             {
