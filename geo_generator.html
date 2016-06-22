@@ -182,7 +182,7 @@
                             var end_lng = e.latLng.lng();
                             var temp, lat, lng, dist, n_steps, lat_dir, lng_dir;                            
                             dist = Math.sqrt((start_lat-end_lat)*(start_lat-end_lat)+(start_lng-end_lng)*(start_lng-end_lng));
-                            n_steps = dist / 0.0014542670880578;                                            
+                            n_steps = dist / 0.0009542670880578;                                            
                             lat = start_lat + (end_lat-start_lat)/n_steps;
                             lng = start_lng + (end_lng-start_lng)/n_steps;
                             for (i = 1; i < n_steps;
