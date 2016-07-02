@@ -29,3 +29,6 @@ Run **./svtool -f filename** to get street view images of the geocodes read from
 [-d direction1,direction2,...,directionn (default 0,90,180,270; 0 is NORTH, 90 is EAST etc.)]<br/>
 [-a angle of view (default 90)]<br/>
 [-p pitch (default 0)]<br/>
+
+## quick_svtool.sh bash script
+Run **./quick_svtool.sh filename** to get street view images of the geocodes read from the file with default options.<br/>
